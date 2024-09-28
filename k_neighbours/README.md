@@ -1,6 +1,10 @@
 # K-neighbours.
 
 
+## Preview
+
+[> Jupiter file with list code](recsys.ipynb)
+
 У нас есть модель ввода:
 ```python
 class UserInput(BaseModel):
@@ -67,7 +71,3 @@ diffs = cosine_similarity(target_vectors, user_vector)
 result_df = pandas.DataFrame(diffs, columns=['similarity_rate'])
 
 ```
-
-## Preview
-
-[> Jupiter file with list code](recsys,ipynb)
