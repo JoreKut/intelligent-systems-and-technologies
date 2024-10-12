@@ -9,7 +9,6 @@ async def main():
     data = await collect_data()
     graph = get_graph(data=data)
     show_analyze(graph=graph)
-    print(data)
 
 
 if __name__ == '__main__':
