@@ -10,6 +10,7 @@ python = "^3.9"
 pandas = "^2.2.3"
 pydantic = "^2.9.2"
 jupyter = "^1.1.1"
+aiohttp = "^3.10.10"
 
 
 [build-system]
