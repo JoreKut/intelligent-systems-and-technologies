@@ -23,8 +23,7 @@ class VkApi:
             ) as resp:
                 res = await resp.json()
 
-        if 'error' in res:
-            return GetUserFriendsResponse(count=0, items=[])
+        assert 'error' not in res, "error in response '%s'" % res["error"]["error_msg"]
 
         return GetUserFriendsResponse(user_id=user_id, **res['response'])
 
