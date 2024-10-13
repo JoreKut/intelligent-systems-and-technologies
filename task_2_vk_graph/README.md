@@ -49,6 +49,22 @@ g = Graph(data)
 Определяет центральность графа:
 - По посредничеству собственного вектора
 - По близости собственного вектора
+```python
+from networkx import Graph, betweenness_centrality, eigenvector_centrality
+
+class GraphAnalyzer:
+    def __init__(self, graph: Graph):
+        self.graph = graph
+
+    def analyze(self):
+        # Центральность по посредничеству
+        betweenness = betweenness_centrality(self.graph)
+        
+        # Близость собственного вектора
+        eigenvector = eigenvector_centrality(self.graph)
+        
+        return betweenness, eigenvector
+```
 
 
 ### [models.py](models.py)
