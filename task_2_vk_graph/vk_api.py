@@ -1,6 +1,6 @@
 import aiohttp
 
-from task_2_vk_graph.models import GetUserFriendsResponse
+from task_2_vk_graph.models import GetUserFriendsResponse, UserFriends
 
 
 class VkApi:
@@ -29,12 +29,12 @@ class VkApi:
         return GetUserFriendsResponse(**res['response'])
 
 
-async def collect_data() -> list[GetUserFriendsResponse]:
+async def collect_data() -> list[UserFriends]:
     vk_api = VkApi()
     bsmo_10_24_users = ['193887357']
-    res = []
+    users_friends = []
     for user_id in bsmo_10_24_users:
         resp = await vk_api.get_user_friends(user_id=user_id)
-        res.append(resp)
+        users_friends.append(UserFriends(user_id=user_id, friend_ids=resp.items))
 
-    return res
+    return users_friends
