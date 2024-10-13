@@ -12,7 +12,7 @@ def get_graph(
 
     for res in data:
         user_id = res.user_id
-        friend_ids = res.items
+        friend_ids = res.friend_ids
 
         G.add_nodes_from(friend_ids + [user_id])
         G.add_edges_from((user_id, friend_id) for friend_id in friend_ids)
