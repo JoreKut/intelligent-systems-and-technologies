@@ -31,7 +31,7 @@ class VkApi:
 
 async def collect_data() -> list[GetUserFriendsResponse]:
     vk_api = VkApi()
-    bsmo_10_24_users = ['193887357']
+    bsmo_10_24_users = ['193887357', '239666833']
     res = []
     for user_id in bsmo_10_24_users:
         resp = await vk_api.get_user_friends(user_id=user_id)
