@@ -18,12 +18,12 @@ def get_graph(
         G.add_edges_from((user_id, friend_id) for friend_id in friend_ids)
 
     if draw_graph:
-        _graw_graph(G)
+        _draw_graph(G)
 
     return G
 
 
-def _graw_graph(g: nx.Graph):
+def _draw_graph(g: nx.Graph):
     pos = nx.spring_layout(g, k=3)  # k=2 увеличивает расстояние между узлами
     plt.figure(figsize=(10, 10), dpi=500)  # figsize=(10, 10) увеличивает размер, dpi=200 увеличивает разрешение
     nx.draw(
