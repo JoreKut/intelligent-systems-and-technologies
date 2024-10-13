@@ -2,7 +2,7 @@ import asyncio
 
 from graph import get_graph
 from vk_api import collect_data
-from vk_graph.analyzer import show_analyze
+from task_2_vk_graph.analyzer import show_analyze
 
 
 async def main():

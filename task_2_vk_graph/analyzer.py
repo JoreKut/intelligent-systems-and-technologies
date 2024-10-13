@@ -1,4 +1,4 @@
-from vk_graph.graph import Graph
+from networkx import Graph
 
 
 class GraphAnalyzer:
