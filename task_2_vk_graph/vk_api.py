@@ -26,7 +26,7 @@ class VkApi:
         if 'error' in res:
             return GetUserFriendsResponse(count=0, items=[])
 
-        return GetUserFriendsResponse(**res['response'])
+        return GetUserFriendsResponse(user_id=user_id, **res['response'])
 
 
 async def collect_data() -> list[GetUserFriendsResponse]:
