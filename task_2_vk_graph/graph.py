@@ -1,11 +1,11 @@
 import networkx as nx
 from matplotlib import pyplot as plt
 
-from task_2_vk_graph.models import GetUserFriendsResponse
+from task_2_vk_graph.models import UserFriends
 
 
 def get_graph(
-        data: list[GetUserFriendsResponse],
+        data: list[UserFriends],
         draw_graph=False,
 ) -> nx.Graph:
     G = nx.Graph()
