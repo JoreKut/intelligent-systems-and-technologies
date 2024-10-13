@@ -33,8 +33,13 @@ async def collect_data() -> list[UserFriends]:
     vk_api = VkApi()
     bsmo_10_24_users = ['193887357']
     users_friends = []
+    # TODO: optimize with asyncio.gather. Exec coroutines by batches.
     for user_id in bsmo_10_24_users:
         resp = await vk_api.get_user_friends(user_id=user_id)
         users_friends.append(UserFriends(user_id=user_id, friend_ids=resp.items))
+
+        for inner_user_id in resp.items:
+            resp = await vk_api.get_user_friends(user_id=inner_user_id)
+            users_friends.append(UserFriends(user_id=inner_user_id, friend_ids=resp.items))
 
     return users_friends
