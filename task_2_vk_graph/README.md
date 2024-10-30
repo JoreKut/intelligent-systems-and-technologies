@@ -1,5 +1,8 @@
-## Структура
+## OUTPUT
 
+![](graph-view.png)
+
+## Структура
 ```
 └── task_2_vk_graph
     ├── analyzer.py
