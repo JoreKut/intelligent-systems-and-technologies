@@ -1,21 +1,25 @@
+from typing import AsyncGenerator
+
 import networkx as nx
 from matplotlib import pyplot as plt
 
 from task_2_vk_graph.models import UserFriends
 
 
-def get_graph(
-        data: list[UserFriends],
+async def get_graph(
+        source: AsyncGenerator[list[UserFriends]],
         draw_graph=False,
 ) -> nx.Graph:
     G = nx.Graph()
 
-    for res in data:
-        user_id = res.user_id
-        friend_ids = res.friend_ids
+    async for data in source:
+        print("\t| [get_graph] data", len(data))
+        for res in data:
+            user_id = res.user_id
+            friend_ids = res.friend_ids
 
-        G.add_nodes_from(friend_ids + [user_id])
-        G.add_edges_from((user_id, friend_id) for friend_id in friend_ids)
+            G.add_nodes_from(friend_ids + [user_id])
+            G.add_edges_from((user_id, friend_id) for friend_id in friend_ids)
 
     if draw_graph:
         _draw_graph(G)

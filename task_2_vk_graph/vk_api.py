@@ -1,6 +1,6 @@
 import asyncio
 from itertools import batched
-from typing import Generator
+from typing import Generator, AsyncGenerator
 
 import aiohttp
 
@@ -8,6 +8,7 @@ from task_2_vk_graph.models import GetUserFriendsResponse, UserFriends
 
 
 class VkApi:
+    session = None
 
     def __init__(self):
         self.base_url = "https://api.vk.com/method"
@@ -15,7 +16,7 @@ class VkApi:
             "access_token": "vk1.a.Swg3AX8bmnufEdG2PI_i1QFj_xrRWx3T16twTLKL_PWLHw5e9AVs1tnmVlrctNbVRZjB0EAmIP_n-eSlr0t7ITZLOMRXHZ7N1ouSdoWG4kZUqXLyeeJP8cnibymajH-oKMtk2WceZDS7Vch2eYziRQFtR9vzTlze3NjjM-OdQzjdxlLobi1gz-b-Qv_YVS5hHyyakPRGp0L8vNMk5c2iJg",
             "v": "5.199",
         }
-        self.conn = aiohttp.TCPConnector(limit_per_host=30)
+        self.conn = aiohttp.TCPConnector(limit_per_host=10)
         self.session = aiohttp.ClientSession(connector=self.conn)
 
     async def get_user_friends(self, user_id) -> GetUserFriendsResponse:
@@ -28,39 +29,93 @@ class VkApi:
             res = await resp.json()
 
         if 'error' in res:
-            return GetUserFriendsResponse(count=0, items=[])
+            print(res)
+            return GetUserFriendsResponse(user_id=user_id, count=0, items=[])
 
-        return GetUserFriendsResponse(**res['response'])
+        return GetUserFriendsResponse(user_id=user_id, **res['response'])
+
+
+async def async_collect_gen(func, user_ids) -> AsyncGenerator[list[GetUserFriendsResponse]]:
+    coroutine_number = 10
+    print('\t[async_collect_gen] count', len(user_ids))
+    for user_ids_batch in batched(user_ids, coroutine_number):
+        print('\t[async_collect_gen] batch', user_ids_batch)
+        tasks = [
+            func(user_id=_id)
+            for _id in user_ids_batch
+        ]
+        yield await asyncio.gather(*tasks)
+
+
+async def search_iteration(
+        func,
+        user_queue: list[int],
+        visited_users: set[int],
+        tag: str = "untagged"
+):
+    print("\n\n\n")
+    print("#" * 100)
+    print(tag)
+    print(
+        f"| user_queue={len(user_queue)}"
+        f" | visited_users={len(visited_users)}"
+    )
+    collected_response_gen = async_collect_gen(func, user_ids=user_queue)
+    casted_response = []
+    async for response_batch in collected_response_gen:
+        print()
+        print("response_batch", len(response_batch))
+        for response in response_batch:
+            casted_response.append(UserFriends(user_id=int(response.user_id), friend_ids=response.items))
+
+            next_user_ids_set = set(response.items) - visited_users
+            # limit for user count = 100
+            next_user_ids = list(next_user_ids_set)[:100]
+            # set visited and next users
+            visited_users.update(response.items)
+            user_queue.extend(next_user_ids)
+
+    print(tag, len(casted_response))
+    return casted_response
 
 
 async def collect_data() -> Generator[UserFriends]:
     vk_api = VkApi()
-    bsmo_10_24_users = ['193887357']
-    users_friends = []
+    bsmo_10_24_users = [193887357]
+    user_queue: list[int] = [*bsmo_10_24_users]
+    visited_users = set()
 
-    for user_id in bsmo_10_24_users:  # 30 await
-        print('[processing...]', user_id)
-        level_1_resp = await vk_api.get_user_friends(user_id=user_id)
-        users_friends.append(UserFriends(user_id=user_id, friend_ids=level_1_resp.items))
+    # Друзья одногруппников
+    # [bsmo] --> <friends>
+    result = await search_iteration(
+        vk_api.get_user_friends,
+        user_queue=user_queue,
+        visited_users=visited_users,
+        tag="[bsmo] --> <friends>",
+    )
+    yield result
 
-        for inner_user_id in level_1_resp.items[:100]:  # 100 await
-            level_2_resp = await vk_api.get_user_friends(user_id=inner_user_id)
-            users_friends.append(UserFriends(user_id=inner_user_id, friend_ids=level_2_resp.items))
+    # Друзья друзей одногруппников
+    # [bsmo] --> <friends> --> <friends>
 
-            for inner_users_user_ids in batched(level_2_resp.items[:100], 25):  # 4 await
-                print(inner_users_user_ids)
-                # START ASYNCIO
-                tasks = [
-                    vk_api.get_user_friends(user_id=_id)
-                    for _id in inner_users_user_ids
-                ]
-                level_3_resp_list = await asyncio.gather(*tasks)
-                # END ASYNCIO
+    result = await search_iteration(
+        vk_api.get_user_friends,
+        user_queue=user_queue,
+        visited_users=visited_users,
+        tag="[bsmo] --> <friends> --> <friends>",
+    )
+    yield result
 
-                for level_3_resp in level_3_resp_list:
-                    users_friends.append(UserFriends(user_id=inner_user_id, friend_ids=level_3_resp.items))
-            print('\t[processed] ', inner_user_id)
+    # Друзья друзей друзей одногруппников
+    # [bsmo] --> <friends> --> [friends] --> <friends>
 
-        print('[processed] ', user_id)
-        yield users_friends
-        users_friends.clear()
+    result = await search_iteration(
+        vk_api.get_user_friends,
+        user_queue=user_queue,
+        visited_users=visited_users,
+        tag="[bsmo] --> <friends> --> [friends] --> <friends>",
+    )
+    yield result
+
+    await vk_api.session.close()
+

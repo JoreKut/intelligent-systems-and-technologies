@@ -6,8 +6,8 @@ from task_2_vk_graph.analyzer import show_analyze
 
 
 async def main():
-    data = await collect_data()
-    graph = get_graph(data=data)
+
+    graph = await get_graph(source=collect_data())
     show_analyze(graph=graph)
 
 
