@@ -26,7 +26,7 @@ class SchellingModel:
 
     free_place_symbols = [FREE_mark_icon, empty_mark]
 
-    def __init__(self, n: int, entity_fraction_config: EntitiesFractionConfig, empty_fraction):
+    def __init__(self, n: int, entity_fraction_config: EntitiesFractionConfig, empty_fraction, web_view=False):
         self.n = n
         self.size = n * n
         self.red_fraction = entity_fraction_config.red_fraction * (1 - empty_fraction)
@@ -34,7 +34,11 @@ class SchellingModel:
         self.empty_fraction = empty_fraction
 
         # used for field map for output view
-        self.marks = [self.RED_mark_icon, self.BLUE_mark_icon, self.FREE_mark_icon]
+        if web_view:
+            # Number representation
+            self.marks = [self.red_mark, self.blue_mark, self.empty_mark]
+        else:
+            self.marks = [self.RED_mark_icon, self.BLUE_mark_icon, self.FREE_mark_icon]
 
         # percentage for each group
         self.p = [self.red_fraction, self.blue_fraction, self.empty_fraction]
