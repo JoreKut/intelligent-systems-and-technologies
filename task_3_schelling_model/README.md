@@ -3,14 +3,32 @@
 Inspired by [topic by Adil Moujahid](https://adilmoujahid.com/posts/2020/05/streamlit-python-schelling/)
 
 ## Вывод
-![](media/output.png)
 
+### С использованием библиотеки
+
+Есть управление
+
+- размер поля
+- Доли свободных и занятых клеток
+- Отношение синих к красным
+
+![](media/web-result-1.png)
+
+Для запуска:
+```bash
+streamlit run visualizer.py
+```
+
+### Консольный
+
+![](media/output.png)
 
 ## Code structure
 
 ![](media/class_structure.png)
 
 ### Принип работы программы:
+
 ```python
 model = SchellingModel(...)
 
@@ -25,6 +43,7 @@ model.print_info()
 ```
 
 ## Tests
+
 У нас также есть unit-tests на логику определение таблицы удовлетворенности сущностей.
 
 /[test_rank.py](test_rank.py)
