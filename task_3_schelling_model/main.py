@@ -1,4 +1,4 @@
-from task_3_schelling_model.schelling_model import EntitiesFractionConfig, SchellingModel
+from schelling_model import EntitiesFractionConfig, SchellingModel
 
 
 def main():
