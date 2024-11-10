@@ -3,6 +3,7 @@ import os
 from json import JSONDecodeError
 
 from task_2_vk_graph.core import on_exception
+from task_2_vk_graph.models import UserData
 
 BASE_STORAGE_DIRECTORY = os.getenv("BASE_STORAGE_DIRECTORY", "storage")
 
@@ -70,7 +71,7 @@ def load_visited() -> list:
 
 
 @on_exception([FileNotFoundError, JSONDecodeError], [])
-def load_data_list():
+def load_data_list() -> list[UserData]:
     with open(USER_DATA_FILENAME, 'r', encoding='utf-8') as file:
         return json.load(file)
 
