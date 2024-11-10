@@ -37,7 +37,7 @@ class VkApi:
         return GetUserFriendsResponse(user_id=user_id, **res['response'])
 
 
-async def async_collect_gen(func, user_ids_batch) -> AsyncGenerator[list[GetUserFriendsResponse]]:
+async def async_collect_gen(func, user_ids_batch) -> AsyncGenerator[list[GetUserFriendsResponse], None]:
     print('\t[async_collect_gen] batch', user_ids_batch)
     tasks = [
         func(user_id=_id)

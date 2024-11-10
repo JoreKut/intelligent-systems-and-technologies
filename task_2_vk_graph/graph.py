@@ -7,7 +7,7 @@ from task_2_vk_graph.models import UserFriends
 
 
 async def get_graph(
-        source: AsyncGenerator[list[UserFriends]],
+        source: AsyncGenerator[list[UserFriends], None],
         draw_graph=False,
 ) -> nx.Graph:
     G = nx.Graph()
