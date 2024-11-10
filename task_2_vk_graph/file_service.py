@@ -1,15 +1,18 @@
 import json
+import os
 from json import JSONDecodeError
 
 from task_2_vk_graph.core import on_exception
 
-CURRENT_QUEUE_filename = "storage/current_queue.json"
-NEXT_QUEUE_filename = "storage/next_queue.json"
-VISITED_filename = "storage/visited.json"
-USER_DATA_filename = "storage/data.json"
+BASE_STORAGE_DIRECTORY = os.getenv("BASE_STORAGE_DIRECTORY", "storage")
+
+CURRENT_QUEUE_FILENAME = f"{BASE_STORAGE_DIRECTORY}/current_queue.json"
+NEXT_QUEUE_FILENAME = f"{BASE_STORAGE_DIRECTORY}/next_queue.json"
+VISITED_FILENAME = f"{BASE_STORAGE_DIRECTORY}/visited.json"
+USER_DATA_FILENAME = f"{BASE_STORAGE_DIRECTORY}/data.json"
 
 
-def append_datas_to_json_file(data_list: list, output_file=USER_DATA_filename):
+def append_datas_to_json_file(data_list: list, output_file=USER_DATA_FILENAME):
     # Чтение текущего содержимого файла
     try:
         with open(output_file, 'r', encoding='utf-8') as file:
@@ -33,42 +36,42 @@ def reset_data_to_json_file(data, output_file):
 
 
 def save_models_to_file(models: list):
-    append_datas_to_json_file(models, USER_DATA_filename)
+    append_datas_to_json_file(models, USER_DATA_FILENAME)
 
 
 def update_current_queue_to_file(data):
-    reset_data_to_json_file(data, CURRENT_QUEUE_filename)
+    reset_data_to_json_file(data, CURRENT_QUEUE_FILENAME)
 
 
 def update_next_queue_to_file(data):
-    reset_data_to_json_file(data, NEXT_QUEUE_filename)
+    reset_data_to_json_file(data, NEXT_QUEUE_FILENAME)
 
 
 def update_visited_to_file(data):
-    reset_data_to_json_file(data, VISITED_filename)
+    reset_data_to_json_file(data, VISITED_FILENAME)
 
 
 @on_exception([FileNotFoundError, JSONDecodeError], [])
 def load_current_queue():
-    with open(CURRENT_QUEUE_filename, 'r', encoding='utf-8') as file:
+    with open(CURRENT_QUEUE_FILENAME, 'r', encoding='utf-8') as file:
         return json.load(file)
 
 
 @on_exception([FileNotFoundError, JSONDecodeError], [])
 def load_next_queue():
-    with open(NEXT_QUEUE_filename, 'r', encoding='utf-8') as file:
+    with open(NEXT_QUEUE_FILENAME, 'r', encoding='utf-8') as file:
         return json.load(file)
 
 
 @on_exception([FileNotFoundError, JSONDecodeError], set())
 def load_visited() -> list:
-    with open(VISITED_filename, 'r', encoding='utf-8') as file:
+    with open(VISITED_FILENAME, 'r', encoding='utf-8') as file:
         return json.load(file)
 
 
 @on_exception([FileNotFoundError, JSONDecodeError], [])
 def load_data_list():
-    with open(USER_DATA_filename, 'r', encoding='utf-8') as file:
+    with open(USER_DATA_FILENAME, 'r', encoding='utf-8') as file:
         return json.load(file)
 
 
