@@ -104,6 +104,8 @@ async def collect_data():
     user_queue: list[int] = file_service.load_current_queue()
     bsmo_10_24_users = [
         193887357,
+        195614586,
+        239666833,
     ]
 
     for user_id in bsmo_10_24_users:
