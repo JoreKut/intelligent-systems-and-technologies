@@ -1,5 +1,23 @@
+import time
+from concurrent.futures import ThreadPoolExecutor
 from networkx import Graph, betweenness_centrality, eigenvector_centrality
 from operator import itemgetter
+
+def _betweenness_centrality(graph):
+    # Центральность по посредничеству
+    print("Analyze betweenness start")
+    start_time = time.time()
+    res = betweenness_centrality(graph)
+    print(f"Analyze betweenness finish in {time.time() - start_time:2f}s")
+    return res
+
+def _eigenvector_centrality(graph):
+    # Близость собственного вектора
+    print("Analyze eigenvector start")
+    start_time = time.time()
+    res =  eigenvector_centrality(graph)
+    print(f"Analyze eigenvector finish in {time.time() - start_time:2f}s")
+    return res
 
 class GraphAnalyzer:
 
@@ -7,17 +25,22 @@ class GraphAnalyzer:
         self.graph = graph
 
     def analyze(self):
-        # Центральность по посредничеству
-        betweenness = betweenness_centrality(self.graph)
-        
-        # Близость собственного вектора
-        eigenvector = eigenvector_centrality(self.graph)
-        
+        # Запуск функций в отдельных потоках
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            future1 = executor.submit(_betweenness_centrality, self.graph)
+            future2 = executor.submit(_eigenvector_centrality, self.graph)
+
+            # Ожидание завершения обеих функций
+            betweenness = future1.result()
+            eigenvector = future2.result()
+
         return betweenness, eigenvector
 
 from operator import itemgetter
 
-def show_analyze(graph: Graph):
+def show_analyze(graph: Graph) -> (list[int], list[int]):
+    print("Analyze graph ", graph)
+
     result = GraphAnalyzer(graph)
     betweenness_result, eigenvector_result = result.analyze()
     
@@ -39,5 +62,6 @@ def show_analyze(graph: Graph):
         print(f"{node}: {centrality}")
     
     print("-" * 40)
+    return list(sorted_betweenness.keys()), list(sorted_eigenvector.keys())
 
 
