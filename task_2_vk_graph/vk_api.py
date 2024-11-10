@@ -1,4 +1,5 @@
 import asyncio
+import os
 from itertools import batched
 from typing import AsyncGenerator
 import file_service
@@ -11,9 +12,10 @@ class VkApi:
     session = None
 
     def __init__(self):
+        assert os.getenv("VK_TOKEN"), Exception("Прокинь токен в .env пж ('VK_TOKEN')")
         self.base_url = "https://api.vk.com/method"
         self.base_payload = {
-            "access_token": "vk1.a.sWiY5ZvA4T11Q1uHHo8dyNRqfsuWNBzKNP7RMIvcXpqIcx-3uKdWNptQ2oNeETMSDDkNplv0Dt9RkeTy3YlQNUZT26WbPpKQrDfCEhjT6796KnlyniGI-bFVIcaSY3t3bV-rBEeKhNC9qmfHkVrfYDlR27jAakrYuROCzgQI1AUK8MKaYFUDQQn-spMyesRpTur7CyUuHaYv1B46mPF1dw",
+            "access_token": os.getenv("VK_TOKEN"),
             "v": "5.199",
         }
         self.conn = aiohttp.TCPConnector(limit_per_host=10)
@@ -35,8 +37,7 @@ class VkApi:
         return GetUserFriendsResponse(user_id=user_id, **res['response'])
 
 
-async def async_collect_gen(func, user_ids_batch) -> AsyncGenerator[list[GetUserFriendsResponse]]:
-
+async def async_collect_gen(func, user_ids_batch) -> AsyncGenerator[list[GetUserFriendsResponse], None]:
     print('\t[async_collect_gen] batch', user_ids_batch)
     tasks = [
         func(user_id=_id)
@@ -102,7 +103,11 @@ async def collect_data():
     vk_api = VkApi()
     visited_users = set(file_service.load_visited())
     user_queue: list[int] = file_service.load_current_queue()
-    bsmo_10_24_users = [193887357]
+    bsmo_10_24_users = [
+        193887357,
+        195614586,
+        239666833,
+    ]
 
     for user_id in bsmo_10_24_users:
         if user_id not in visited_users:

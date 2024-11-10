@@ -1,3 +1,5 @@
+from typing import TypedDict
+
 from pydantic import BaseModel
 
 
@@ -10,3 +12,8 @@ class GetUserFriendsResponse(BaseModel):
 class UserFriends(BaseModel):
     user_id: int
     friend_ids: list[int] = []
+
+
+class UserData(TypedDict):
+    user_id: int
+    friend_ids: list[int]
