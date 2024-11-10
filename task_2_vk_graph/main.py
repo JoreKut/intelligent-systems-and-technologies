@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import asyncio
 import sys
 
@@ -5,7 +9,6 @@ from graph import get_graph
 from vk_api import collect_data
 from task_2_vk_graph.analyzer import show_analyze
 import file_service
-
 
 async def main():
     await collect_data()

@@ -1,4 +1,5 @@
 import asyncio
+import os
 from itertools import batched
 from typing import AsyncGenerator
 import file_service
@@ -11,9 +12,10 @@ class VkApi:
     session = None
 
     def __init__(self):
+        assert os.getenv("VK_TOKEN"), Exception("Прокинь токен в .env пж ('VK_TOKEN')")
         self.base_url = "https://api.vk.com/method"
         self.base_payload = {
-            "access_token": "vk1.a.sWiY5ZvA4T11Q1uHHo8dyNRqfsuWNBzKNP7RMIvcXpqIcx-3uKdWNptQ2oNeETMSDDkNplv0Dt9RkeTy3YlQNUZT26WbPpKQrDfCEhjT6796KnlyniGI-bFVIcaSY3t3bV-rBEeKhNC9qmfHkVrfYDlR27jAakrYuROCzgQI1AUK8MKaYFUDQQn-spMyesRpTur7CyUuHaYv1B46mPF1dw",
+            "access_token": os.getenv("VK_TOKEN"),
             "v": "5.199",
         }
         self.conn = aiohttp.TCPConnector(limit_per_host=10)
@@ -36,7 +38,6 @@ class VkApi:
 
 
 async def async_collect_gen(func, user_ids_batch) -> AsyncGenerator[list[GetUserFriendsResponse]]:
-
     print('\t[async_collect_gen] batch', user_ids_batch)
     tasks = [
         func(user_id=_id)
