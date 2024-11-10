@@ -102,7 +102,9 @@ async def collect_data():
     vk_api = VkApi()
     visited_users = set(file_service.load_visited())
     user_queue: list[int] = file_service.load_current_queue()
-    bsmo_10_24_users = [193887357]
+    bsmo_10_24_users = [
+        193887357,
+    ]
 
     for user_id in bsmo_10_24_users:
         if user_id not in visited_users:
