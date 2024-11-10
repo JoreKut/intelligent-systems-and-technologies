@@ -16,4 +16,4 @@ class UserFriends(BaseModel):
 
 class UserData(TypedDict):
     user_id: int
-    friends_ids: list[int]
+    friend_ids: list[int]
