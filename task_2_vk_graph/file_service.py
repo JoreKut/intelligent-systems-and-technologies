@@ -1,3 +1,4 @@
+import functools
 import json
 import os
 from json import JSONDecodeError
@@ -11,6 +12,8 @@ CURRENT_QUEUE_FILENAME = f"{BASE_STORAGE_DIRECTORY}/current_queue.json"
 NEXT_QUEUE_FILENAME = f"{BASE_STORAGE_DIRECTORY}/next_queue.json"
 VISITED_FILENAME = f"{BASE_STORAGE_DIRECTORY}/visited.json"
 USER_DATA_FILENAME = f"{BASE_STORAGE_DIRECTORY}/data.json"
+ANALYZE_BETWENESS = f"{BASE_STORAGE_DIRECTORY}/betweness.json"
+ANALYZE_EIGENVECTOR = f"{BASE_STORAGE_DIRECTORY}/eigenvector.json"
 
 
 def append_datas_to_json_file(data_list: list, output_file=USER_DATA_FILENAME):
@@ -74,6 +77,22 @@ def load_visited() -> list:
 def load_data_list() -> list[UserData]:
     with open(USER_DATA_FILENAME, 'r', encoding='utf-8') as file:
         return json.load(file)
+
+
+def _dump_analyze_result(filename: str, obj: dict, ):
+    with open(filename, "w") as f:
+        json.dump(obj, f)
+
+def _load_analyze_result(filename: str):
+    with open(filename, "r") as f:
+        res = json.load(f)
+    return res
+
+save_betweness = functools.partial(_dump_analyze_result, ANALYZE_BETWENESS)
+save_eigenvector = functools.partial(_dump_analyze_result, ANALYZE_EIGENVECTOR)
+
+load_betweness = functools.partial(_load_analyze_result, ANALYZE_BETWENESS)
+load_eigenvector = functools.partial(_load_analyze_result, ANALYZE_EIGENVECTOR)
 
 
 if __name__ == '__main__':

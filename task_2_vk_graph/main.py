@@ -1,5 +1,4 @@
-import pickle
-from typing import Any
+import json
 
 from dotenv import load_dotenv
 
@@ -12,25 +11,40 @@ from vk_api import collect_data
 from task_2_vk_graph.analyzer import show_analyze
 import file_service
 
-def _pickle_res(obj: Any, filename: str):
-    with open(filename, "wb") as f:
-        pickle.dump(obj, f)
+CHECKPOINT_FILENAME = "analyze.json"
+
 
 async def collect_dataset():
     await collect_data()
 
-async def process_dataset():
+
+def analyze_dataset():
     data = file_service.load_data_list()
     graph = get_graph(data)
-    analyze_dump = show_analyze(graph=graph)
-    # checkpoint
-    _pickle_res(analyze_dump, "analyze_dump")
-    draw_graph(graph, *analyze_dump)
+    betweenness, eigenvector = show_analyze(graph=graph)
+    file_service.save_betweness(betweenness)
+    file_service.save_eigenvector(eigenvector)
+
+
+def draw_dataset():
+    data = file_service.load_data_list()
+    graph = get_graph(data)
+    betweness = file_service.load_betweness()
+    betweness: dict[int, float]
+
+    betweness_main_nodes = list(betweness.keys())[:1]
+    betweness_main_nodes = [int(n) for n in betweness_main_nodes]  # from json we get str and must cast to int
+    draw_graph(
+        graph,
+        main_nodes=betweness_main_nodes,
+        min_edges=0,
+    )
 
 
 async def main():
     # await collect_dataset()
-    await process_dataset()
+    # analyze_dataset()
+    draw_dataset()
 
 
 if __name__ == '__main__':

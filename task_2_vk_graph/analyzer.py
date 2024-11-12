@@ -38,7 +38,7 @@ class GraphAnalyzer:
 
 from operator import itemgetter
 
-def show_analyze(graph: Graph) -> (list[int], list[int]):
+def show_analyze(graph: Graph) -> (dict[int, float], dict[int, float]):
     print("Analyze graph ", graph)
 
     result = GraphAnalyzer(graph)
@@ -62,6 +62,6 @@ def show_analyze(graph: Graph) -> (list[int], list[int]):
         print(f"{node}: {centrality}")
     
     print("-" * 40)
-    return list(sorted_betweenness.keys()), list(sorted_eigenvector.keys())
+    return sorted_betweenness, sorted_eigenvector
 
 

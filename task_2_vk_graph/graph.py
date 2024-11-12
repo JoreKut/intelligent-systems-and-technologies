@@ -1,8 +1,9 @@
 from typing import Iterable
 
 import networkx as nx
-from matplotlib import pyplot as plt
+from pyvis.network import Network
 
+from task_2_vk_graph.file_service import BASE_STORAGE_DIRECTORY
 from task_2_vk_graph.models import UserData
 
 
@@ -25,75 +26,62 @@ def get_graph(
 
 def draw_graph(
         g: nx.Graph,
-        betweenness_result: list[int],
-        eigenvector_result: list[int],
-):  # left_main_nodes – ноды, которые нужно оставить в графе и их связи
-    left_main_nodes = eigenvector_result[:10]
-
-    print("Draw graph...")
-    print("Get graph with ", g)
-    print(f"Need to left next nodes ({len(left_main_nodes)}) → ", left_main_nodes)
-
-    print("Prepare graph")
-
+        main_nodes: list[int],
+        min_edges: int = 1,
+):  # main_nodes – ноды, которые нужно оставить в графе и их связи
     graph = g.copy()
 
-    all_nodes = set(graph.nodes)
+    print(f"Draw graph, with main nodes (len(main_nodes)) {main_nodes} ")
+    print(f"Graph has {len(graph.nodes)} nodes")
 
-    left_nodes = set()
-    for node in left_main_nodes:
+    print("Prepare graph...")
+    left_nodes = set(main_nodes)
+    for node in main_nodes:
         neighbors = set(graph.neighbors(node))
         left_nodes.update(neighbors)
+    remove_nodes = set(graph.nodes) - left_nodes
 
-    remove_nodes = all_nodes - left_nodes
-    print(f"Need to remove next nodes ({len(remove_nodes)}) → ", remove_nodes)
+    print(f"Need to remove {len(remove_nodes)} nodes")
     graph.remove_nodes_from(remove_nodes)
+    print(f"Graph has {len(graph.nodes)} nodes")
 
-    print(f"Left graph with {len(graph.nodes)} nodes → {graph.nodes}")
+    print("Clear dangling nodes")
+    _clear_dangling_edges(graph, min_edges=min_edges)
+    print(f"Graph has {len(graph.nodes)} nodes")
 
-    # min_edges_connected = 17
-    # n = 0
-    # while 1:
-    #     nodes_to_remove = [node for node, degree in dict(graph.degree()).items() if degree < min_edges_connected]
-    #     if not nodes_to_remove:
-    #         break
-    #     graph.remove_nodes_from(nodes_to_remove)
-    #     n += 1
-    #
-    # left_nodes = list(dict(graph.degree()).keys())
-    # print("left nodes1 ", left_nodes)
-    # left_nodes = random.sample(left_nodes, len(left_nodes) - 6)
-    # print("left nodes2 ", left_nodes)
-    #
-    # graph.remove_nodes_from(left_nodes)
-    #
-    #
-    # print(f"clear graph in {n} epochs and left graph with {len(graph.nodes)} nodes")
-    #
-    #
-    # options1 = {
-    #     'node_color': 'yellow',
-    #     'node_size': 8500,
-    #     'width': 1,
-    #     'arrowstyle': '-|>',
-    #     'arrowsize': 18,
-    #     "with_labels": True,
-    #     "arrows": True,
-    # }
-    options2 = {
-        "with_labels": True,
-        "node_size": 20,
-        "font_size": 4,
-        "font_color": 'black',
-        "font_weight": 'bold'
-    }
+    net = _transform_ntworkx_to_pyvis(graph, main_nodes)
 
-    pos = nx.spring_layout(graph, k=1000)  # k=2 увеличивает расстояние между узлами
-    # pos = nx.spring_layout(g, k=3)  # k=2 увеличивает расстояние между узлами
-    plt.figure(figsize=(10, 10), dpi=500)  # figsize=(10, 10) увеличивает размер, dpi=200 увеличивает разрешение
-    nx.draw(
-        graph,
-        pos,
-        **options2
-    )
-    plt.show()
+    net.barnes_hut()  # нормальная физика
+    net.show(f"{BASE_STORAGE_DIRECTORY}/graph.html", notebook=False)
+
+
+def _clear_dangling_edges(graph: nx.Graph, min_edges=1) -> int:
+    nodes_to_remove = [
+        n for n, degree in dict(graph.degree()).items()
+        if int(degree) < min_edges
+    ]
+    if not nodes_to_remove:
+        return 0
+    graph.remove_nodes_from(nodes_to_remove)
+    return len(nodes_to_remove)
+
+
+def _transform_ntworkx_to_pyvis(
+        graph: nx.Graph,
+        main_nodes: list[int],
+) -> Network:
+    net = Network()
+
+    for n, node in enumerate(graph.nodes()):
+        opts = {"label": str(node)}
+        if node in main_nodes:
+            opts.update({"color": "#eb4c34"})
+        net.add_node(node, **opts)
+
+    for edge in graph.edges():
+        try:
+            net.add_edge(edge[0], edge[1])
+        except:
+            pass
+
+    return net
