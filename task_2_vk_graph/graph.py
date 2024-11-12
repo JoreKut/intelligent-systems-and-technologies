@@ -46,7 +46,11 @@ def draw_graph(
     print(f"Graph has {len(graph.nodes)} nodes")
 
     print("Clear dangling nodes")
-    _clear_dangling_edges(graph, min_edges=min_edges)
+    while 1:
+        nodes_count = _clear_dangling_edges(graph, min_edges=min_edges)
+        print(f"Cleared {nodes_count} dangling nodes")
+        if not nodes_count:
+            break
     print(f"Graph has {len(graph.nodes)} nodes")
 
     net = _transform_ntworkx_to_pyvis(graph, main_nodes)
