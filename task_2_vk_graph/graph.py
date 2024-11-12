@@ -31,7 +31,7 @@ def draw_graph(
 ):  # main_nodes – ноды, которые нужно оставить в графе и их связи
     graph = g.copy()
 
-    print(f"Draw graph, with main nodes (len(main_nodes)) {main_nodes} ")
+    print(f"Draw graph, with main nodes ({len(main_nodes)}) {main_nodes} ")
     print(f"Graph has {len(graph.nodes)} nodes")
 
     print("Prepare graph...")
