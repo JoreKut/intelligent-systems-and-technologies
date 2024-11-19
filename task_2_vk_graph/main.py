@@ -21,9 +21,10 @@ async def collect_dataset():
 def analyze_dataset():
     data = file_service.load_data_list()
     graph = get_graph(data)
-    betweenness, eigenvector = show_analyze(graph=graph)
+    betweenness, eigenvector, closeness = show_analyze(graph=graph)
     file_service.save_betweness(betweenness)
     file_service.save_eigenvector(eigenvector)
+    file_service.save_eigenvector(closeness)
 
 
 def draw_dataset():

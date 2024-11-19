@@ -2,7 +2,7 @@ import time
 from concurrent.futures import ProcessPoolExecutor
 
 from igraph import Graph as iGraph
-from networkx import Graph, betweenness_centrality, eigenvector_centrality
+from networkx import Graph, betweenness_centrality, eigenvector_centrality, closeness_centrality
 
 
 def _betweenness_centrality_igraph(graph):
@@ -36,6 +36,14 @@ def _eigenvector_centrality(graph):
     print(f"Analyze eigenvector finish in {time.time() - start_time:2f}s")
     return res
 
+def _closeness_centrality(graph):
+    # Центральность близости
+    print("Analyze closeness start")
+    start_time = time.time()
+    res = closeness_centrality(graph)
+    print(f"Analyze closeness finish in {time.time() - start_time:2f}s")
+    return res
+
 
 class GraphAnalyzer:
 
@@ -47,12 +55,14 @@ class GraphAnalyzer:
         with ProcessPoolExecutor(max_workers=2) as executor:
             future1 = executor.submit(_betweenness_centrality_igraph, self.graph)
             future2 = executor.submit(_eigenvector_centrality, self.graph)
+            future3 = executor.submit(_closeness_centrality, self.graph)
 
-            # Ожидание завершения обеих функций
+            # Ожидание завершения трёх функций
             betweenness = future1.result()
             eigenvector = future2.result()
+            closeness = future3.result()
 
-        return betweenness, eigenvector
+        return betweenness, eigenvector, closeness
 
 
 from operator import itemgetter
@@ -62,7 +72,7 @@ def show_analyze(graph: Graph) -> (dict[int, float], dict[int, float]):
     print("Analyze graph ", graph)
 
     result = GraphAnalyzer(graph)
-    betweenness_result, eigenvector_result = result.analyze()
+    betweenness_result, eigenvector_result, closeness_result= result.analyze()
 
     print("Анализ графа:")
     print("-" * 40)
@@ -72,17 +82,24 @@ def show_analyze(graph: Graph) -> (dict[int, float], dict[int, float]):
     # Сортировка собственной векторной центральности по убыванию
     sorted_eigenvector = dict(sorted(eigenvector_result.items(), key=itemgetter(1), reverse=True))
 
+    # Сортировка собственной векторной центральности по убыванию
+    sorted_closeness = dict(sorted(closeness_result.items(), key=itemgetter(1), reverse=True))
+
     # Вывод топ-5 узлов для каждой центральности
     print("Центральность по посредничеству:")
     for node, centrality in list(sorted_betweenness.items())[:5]:
         print(f"{node}: {centrality}")
 
-    print("\nБлизость собственного вектора:")
+    print("\nЦентральность по собственному вектору:")
     for node, centrality in list(sorted_eigenvector.items())[:5]:
+        print(f"{node}: {centrality}")
+    
+    print("\nЦентральность по близости вектора:")
+    for node, centrality in list(sorted_closeness.items())[:5]:
         print(f"{node}: {centrality}")
 
     print("-" * 40)
-    return sorted_betweenness, sorted_eigenvector
+    return sorted_betweenness, sorted_eigenvector, sorted_closeness
 
 
 def _convert_networx_to_igraph(nx_graph: Graph) -> (iGraph, dict[int, int]):  # return graph and Dict[label, idx]
