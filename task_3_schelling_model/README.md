@@ -47,3 +47,12 @@ model.print_info()
 У нас также есть unit-tests на логику определение таблицы удовлетворенности сущностей.
 
 /[test_rank.py](test_rank.py)
+
+
+## Динамика изменения
+
+![](media/iter1.png)
+![](media/iter2.png)
+![](media/iter3.png)
+![](media/iter4.png)
+![](media/iter4.png)
