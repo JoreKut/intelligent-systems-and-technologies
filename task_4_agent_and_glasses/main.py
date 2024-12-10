@@ -5,7 +5,7 @@ import random
 # Параметры среды
 NUM_GLASSES = 5
 MAX_STEPS = 1000  # Максимальное количество шагов в одном эпизоде
-EPISODES = 1000  # Количество эпизодов обучения
+EPISODES = 5000  # Количество эпизодов обучения
 ALPHA = 0.1  # Скорость обучения
 GAMMA = 0.9  # Коэффициент дисконтирования
 EPSILON = 0.1  # Вероятность случайного действия (ε-грейди)
@@ -30,18 +30,23 @@ class GlassEnvironment:
         """Выполняет действие и возвращает новую ситуацию."""
         from_glass, to_glass = action
         diff = float(self.state[from_glass] - self.state[to_glass]) // 2.0
+        
+        # считаем ДО
+        std_before = np.std(self.state)
+
+        # Меняем
         self.state[from_glass] -= diff
         self.state[to_glass] += diff
-        
-        # Награда за выравнивание
-        std_before = np.std(self.state) + diff
+
+        # Считаем ПОСЛЕ
         std_after = np.std(self.state)
+
         reward = std_before - std_after  # Положительная награда за уменьшение разброса
         
-        # Дополнительная награда за достижение цели
+        # # Дополнительная награда за достижение цели
         done = std_after < 1e-2
-        if done:
-            reward += 100
+        # if done:
+        #     reward += 100
         
         return self.state, reward, done
 
@@ -84,7 +89,7 @@ def train():
 
     for episode in range(EPISODES):
         state = env.reset()
-        # print(f"Начало: {state}")
+        print(f"Начало: {state}")
         total_reward = 0
         for step in range(MAX_STEPS):
             # Агент выбирает действие
